@@ -1,0 +1,3 @@
+[submodule "Microcontroller/sublib"]
+	path = Microcontroller/sublib
+	url = git@github.com:PalouseRobosub/SUBLIBinal.git
