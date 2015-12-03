@@ -1,0 +1,18 @@
+This file describes the method for controlling the motors.
+
+1. Pull Enables low
+2. Set Direction
+3. PWM Enable to control the motor speed
+
+Notes:
+To coast pull Enable low
+
+Control Diagram
+--------------------------
+EN | IN1 | IN2 |  Result |
+0  |  *  |  *  |  Coast  |
+1  |  0  |  1  | Forward |
+1  |  1  |  0  | Reverse |
+1  |  1  |  1  |  Brake  |
+--------------------------
+* = Don't care
