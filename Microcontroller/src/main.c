@@ -35,7 +35,7 @@ int main(void) {
     Timer_Config timer1_config = {0}, timer2_config = {0}, timer3_config = {0};
     //setup Timer 1
     timer1_config.frequency = 1; //Have the timer trigger at a rate of 1Hz
-    timer1_config.pbclk = 15000000; //The peripheral bus clock is configured to operate at 15MHz
+    timer1_config.pbclk = PB_CLK; //The peripheral bus clock is configured to operate at 15MHz
     timer1_config.which_timer = Timer_1; //Use Timer 1
     timer1_config.callback = &timer1_callback; //Hand a callback function for the ISR
     timer1_config.enabled = 1; //Enable the Timer
@@ -43,7 +43,7 @@ int main(void) {
  
     //Setup Timer 2
     timer2_config.frequency = 500; //Change later
-    timer2_config.pbclk = 15000000;
+    timer2_config.pbclk = PB_CLK;
     timer2_config.which_timer = Timer_2;
     timer2_config.callback = NULL;
     timer2_config.enabled = 1;
@@ -51,7 +51,7 @@ int main(void) {
     
     //Setup Timer 3
     timer3_config.frequency = 500; //Change later
-    timer3_config.pbclk = 15000000;
+    timer3_config.pbclk = PB_CLK;
     timer3_config.which_timer = Timer_3;
     timer3_config.callback = NULL;
     timer3_config.enabled = 1;
