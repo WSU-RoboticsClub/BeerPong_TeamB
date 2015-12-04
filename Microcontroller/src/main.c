@@ -42,7 +42,7 @@ int main(void) {
     initialize_Timer(timer1_config); //Initialize the timer module
  
     //Setup Timer 2
-    timer2_config.frequency = 5000; //Change later
+    timer2_config.frequency = 500; //Change later
     timer2_config.pbclk = 15000000;
     timer2_config.which_timer = Timer_2;
     timer2_config.callback = NULL;
@@ -50,7 +50,7 @@ int main(void) {
     initialize_Timer(timer2_config);
     
     //Setup Timer 3
-    timer3_config.frequency = 5000; //Change later
+    timer3_config.frequency = 500; //Change later
     timer3_config.pbclk = 15000000;
     timer3_config.which_timer = Timer_3;
     timer3_config.callback = NULL;
@@ -86,8 +86,7 @@ int main(void) {
     TRISBbits.TRISB8 = 0; //Enable RB8 as output
     
     //Global interrupt enable. Do this last!
-    INTEnableSystemMultiVectoredInt();
-    asm volatile ("ei"); //reenable interrupts
+    enable_Interrupts();
 
     while (1) {
         //background tasks here, if necessary

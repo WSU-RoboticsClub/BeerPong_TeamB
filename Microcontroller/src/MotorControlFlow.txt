@@ -13,6 +13,6 @@ EN | IN1 | IN2 |  Result |
 0  |  *  |  *  |  Coast  |
 1  |  0  |  1  | Forward |
 1  |  1  |  0  | Reverse |
-1  |  1  |  1  |  Brake  |
+1  | 1/0 | 1/0 |  Brake  |
 --------------------------
 * = Don't care
