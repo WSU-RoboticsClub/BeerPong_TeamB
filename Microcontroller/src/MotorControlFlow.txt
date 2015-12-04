@@ -1,7 +1,7 @@
 This file describes the method for controlling the motors.
 
 1. Pull Enables low
-2. Set Direction
+2. Set Direction 
 3. PWM Enable to control the motor speed
 
 Notes:
