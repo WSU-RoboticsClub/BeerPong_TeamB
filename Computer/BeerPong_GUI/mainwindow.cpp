@@ -12,11 +12,16 @@ MainWindow::MainWindow(QWidget *parent) :
     reset = new QTimer();
     connect(reset, SIGNAL(timeout()), this, SLOT(reset_gui()));
     port = new Packetizer("/dev/ttyUSB0", '!');
+    disabled = new QPalette();
+    disabled->setColor(QPalette::Base, QColor(235,235,235));
+    ui->disp_rpm_m1->setPalette(*disabled);
+    ui->disp_rpm_m2->setPalette(*disabled);
 }
 
 MainWindow::~MainWindow()
 {
     delete port;
+    delete disabled;
     delete reset;
     delete refresh;
     delete ui;

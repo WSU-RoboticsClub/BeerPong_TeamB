@@ -37,6 +37,7 @@ private:
     Ui::MainWindow *ui;
     Packetizer *port;
     QTimer *refresh, *reset;
+    QPalette *disabled;
 };
 
 int convert(unsigned char *buf);
