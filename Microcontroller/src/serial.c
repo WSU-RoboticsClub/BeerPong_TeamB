@@ -1,14 +1,15 @@
 #include "beerpong.h"
-extern char *UART_rx_buffer, *UART_tx_buffer;
 
-extern volatile int M1_RPM_goal, 
+    extern char uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE];
+    extern volatile int sync;
+    extern const char KEY;
+    
+    //Motor Variables
+    extern volatile int M1_RPM_goal, 
                  M2_RPM_goal,
                  M1_RPM_status, 
                  M2_RPM_status;
-
-volatile int timeout = 0;
-extern volatile int sync;
-extern const char KEY;
+volatile int timeout;
 void timeOut_sync();
 
 int convert_to_int(uint8 *message);
@@ -19,13 +20,13 @@ void establishUART()
     UART_Config ucon = {0};
     
     ucon.speed = 115200;
-    ucon.pb_clk = PB_CLK;
-    ucon.rx_buffer_ptr = UART_rx_buffer;
+    ucon.pb_clk = 15000000;
+    ucon.rx_buffer_ptr = uart_rx_buffer;
     ucon.rx_buffer_size = BUFFER_SIZE;
     ucon.rx_callback = NULL;
     ucon.rx_en = TRUE;
     ucon.rx_pin = Pin_RPB13;
-    ucon.tx_buffer_ptr = UART_tx_buffer;
+    ucon.tx_buffer_ptr = uart_tx_buffer;
     ucon.tx_buffer_size = BUFFER_SIZE;
     ucon.tx_callback = NULL;
     ucon.tx_en = TRUE;
@@ -51,15 +52,17 @@ void acquireSynchronization()
     t1.callback = &timeOut_sync;
     t1.enabled = TRUE;
     t1.frequency = 1;
-    t1.pbclk = PB_CLK;
+    t1.pbclk = 15000000;
     t1.which_timer = Timer_1;
     initialize_Timer(t1);
+    char key = KEY;
     
     while (!sync)
     {
         //Enqueue SYNC_COUNT of KEY messages into the UART transmission queue to be packetized
-        for (i = 0; i < SYNC_COUNT; i++)
-            send_packet(PACKET_UART_CH_1, KEY, sizeof(KEY));
+        for (i = 0; i < SYNC_COUNT; i++) {
+            send_packet(PACKET_UART_CH_1, &key, sizeof(key));
+        }
         
         //Now, we will wait for either a time out or a proper response from the 
         while (timeout == 0 && sync == 0)
@@ -73,11 +76,16 @@ void acquireSynchronization()
         else
             timeout = 0;
     }
-    
+    configureSystemTimer();
 }
 
 void packetizer_callback(uint8 *message, uint8 size)
 {
+    
+    
+    //Reset Timer 4s count because we still have sync
+    TMR4 = 0;
+    
     //If we are simply syncing, we need to check the received message
     if (sync == 0)
     {
@@ -95,20 +103,20 @@ void packetizer_callback(uint8 *message, uint8 size)
                 case M1_SET_RPM:
                     //Update the RPM Setting for M1
                     if (size >= 5)
-                        M1_RPM_goal = convert_to_int(&(message[1]));
+                        M1_RPM_status = convert_to_int(&(message[1]));
                     break;
                 case M2_SET_RPM:
                     //Update the RPM Setting for M2
                     if (size >= 5)
-                        M2_RPM_goal = convert_to_int(&(message[1]));
+                        M2_RPM_status = convert_to_int(&(message[1]));
                     break;
                 case M1_READ_RPM:
                     //Transmit the current RPMs for M1
-                    send_packet(PACKET_UART_CH_1, M1_RPM_status, sizeof(M1_RPM_status));
+                    send_packet(PACKET_UART_CH_1, &M1_RPM_status, sizeof(M1_RPM_status));
                     break;
                 case M2_READ_RPM:
                     //Transmit the current RPMs for M2
-                    send_packet(PACKET_UART_CH_1, M2_RPM_status, sizeof(M2_RPM_status));
+                    send_packet(PACKET_UART_CH_1, &M2_RPM_status, sizeof(M2_RPM_status));
                     break;
                 default:
                     break;
@@ -127,7 +135,7 @@ int convert_to_int(uint8 *message)
     int response = 0, i = 0;
     
     for (i = 0; i < 4; i++)
-        response = response << 8 | message[i];
+        response |= message[i]<<(8*i);
     
     return response;
 }

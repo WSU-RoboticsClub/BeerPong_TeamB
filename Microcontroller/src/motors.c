@@ -1,5 +1,16 @@
 #include "beerpong.h"
 
+    extern char uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE];
+    extern volatile int sync;
+    extern const char KEY;
+    
+    //Motor Variables
+    extern volatile int M1_RPM_goal, 
+                 M2_RPM_goal,
+                 M1_RPM_status, 
+                 M2_RPM_status;
+volatile int timeout;
+
 //The motors will utilize Timers 2 and 3 on pins B4 and B11 respectively
 //They also use B5 and B7 as direction pins for M1
 //And B8 and B9 as direction pins for M2
@@ -11,14 +22,14 @@ void configureMotors()
     timerOne.callback = NULL;
     timerOne.enabled = TRUE;
     timerOne.frequency = 500;
-    timerOne.pbclk = PB_CLK;
+    timerOne.pbclk = 15000000;
     timerOne.which_timer = Timer_2;
     initialize_Timer(timerOne);
     
     timerTwo.callback = NULL;
     timerTwo.enabled = TRUE;
     timerTwo.frequency = 500;
-    timerTwo.pbclk = PB_CLK;
+    timerTwo.pbclk = 15000000;
     timerTwo.which_timer = Timer_3;
     initialize_Timer(timerTwo);
     

@@ -13,8 +13,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    Packetizer.cpp \
+    Serial.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    Packetizer.hpp \
+    Serial.hpp
 
 FORMS    += mainwindow.ui

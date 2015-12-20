@@ -3,13 +3,18 @@
 #ifndef BEER_PONG_H
 #define BEER_PONG_H
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+
 /* Includes */
 #include "sublibinal.h"
-#include "sublibinal_config.h"
 
 /* Global Definitions */
 #define BUFFER_SIZE 256 // This defines the size of the UART buffers
 #define SYNC_COUNT 10 // This defines how many messages are sent to acquire sync
+#define REFRESH_FREQUENCY 100 //Rate at which feedback status is updated
 
     //Serial Description Bytes
     #define M1_SET_RPM 0x01
@@ -20,19 +25,13 @@
 /* Global Variables */
 
     //UART Variables
-    char uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE];
-    volatile int sync = 0;
-    const char KEY = 'a';
-    
-    //Motor Variables
-    volatile int M1_RPM_goal = 0, 
-                 M2_RPM_goal = 0,
-                 M1_RPM_status = 0, 
-                 M2_RPM_status = 0;
+
 
 /* Function Prototypes */
     //main
-    void timer1_callback(void);
+    void configureSystemTimer(); //Configure the main system timer for calculating state from feedback
+    void updateStatus();
+    void resync();
 
     //Motors
     void configureMotors(); //Configuration and instantiation of the flywheel motors
@@ -43,5 +42,8 @@
     void packetizer_callback(uint8 *message, uint8 size); //Callback for the packetizer receive
 
 
+#ifdef	__cplusplus
+}
+#endif
 
 #endif
