@@ -21,7 +21,7 @@ extern "C" {
 /* Global Definitions */
 #define BUFFER_SIZE 256 // This defines the size of the UART buffers
 #define SYNC_COUNT 10 // This defines how many messages are sent to acquire sync
-#define REFRESH_FREQUENCY 100 //Rate at which feedback status is updated
+#define REFRESH_FREQUENCY 1 //Rate at which feedback status is updated
 
 //Serial Description Bytes
 #define M1_SET_RPM 0x01
@@ -44,7 +44,7 @@ void configureMotors(); //Configuration and instantiation of the flywheel motors
 void establishUART(); //Create our serial interface with packetizer enabled
 void acquireSynchronization(); //Acquire synchronization with the main computer
 void packetizer_callback(uint8 *message, uint8 size); //Callback for the packetizer receive
-
+void configureFeedback(); //Configure the feedback for the motors
 
 #ifdef	__cplusplus
 }

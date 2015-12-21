@@ -50,12 +50,15 @@ void configureMotors()
 	DDRB |= (1<<2) | (1<<3);
 	PORTB |= (1<<2);
 	PORTB &= ~(1<<3);
-	
+
+	configureFeedback();
+
 }
 
 void interrupt_m1()
 {
 	M1_MAGNET_CNT++;
+	PORTD |= (1<<3);
 }
 
 //This function configures feedback for the hall effect sensors

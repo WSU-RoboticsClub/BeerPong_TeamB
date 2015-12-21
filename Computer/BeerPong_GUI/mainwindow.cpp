@@ -40,7 +40,7 @@ void MainWindow::on_button_getsync_clicked()
         port->send(buffer, size);
 
 
-    refresh->start(100);
+    refresh->start(10);
     ui->button_getsync->setEnabled(false);
     ui->button_getsync->setVisible(false);
 }
@@ -128,7 +128,7 @@ int convert(unsigned char *buf)
 void MainWindow::on_button_reset_clicked()
 {
     refresh->stop();
-    reset->start(1100); //wait 1.1 seconds for the microcontroller to lose sync
+    reset->start(300); //wait .3 seconds for the microcontroller to lose sync
 }
 
 

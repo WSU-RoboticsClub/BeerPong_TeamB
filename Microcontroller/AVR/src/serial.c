@@ -82,7 +82,8 @@ void packetizer_callback(uint8 *message, uint8 size)
 	
 	//Reset Timer 4s count because we still have sync
 	//TMR4 = 0;
-	
+	TCNT2 = 0;
+
 	//If we are simply syncing, we need to check the received message
 	if (sync == 0)
 	{
