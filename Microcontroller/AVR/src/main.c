@@ -1,4 +1,4 @@
-#include "beerpong.h"
+#include "BeerPong.h"
 
     char uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE];
     volatile int sync = 0;
