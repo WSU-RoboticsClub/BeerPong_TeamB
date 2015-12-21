@@ -3,6 +3,7 @@
 extern char uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE];
 extern volatile int sync;
 extern const char KEY;
+extern volatile long serial_timeout;
 
 //Motor Variables
 extern volatile long M1_RPM_goal,
@@ -43,6 +44,9 @@ void acquireSynchronization()
 {
 	int i = 0;
 	
+	disable_Interrupt(INT_0);
+	disable_Interrupt(INT_1);
+
 	//Initialize Timer_1 to be used as a form of timeout. If we have not received messages back from the CPU
 	//by the time its interrupt fires, we will retry
 	Timer_Config t1 = {0};
@@ -73,16 +77,15 @@ void acquireSynchronization()
 		else
 		timeout = 0;
 	}
-	configureSystemTimer();
+	configureFeedback();
 }
 
 void packetizer_callback(uint8 *message, uint8 size)
 {
 	
 	
-	//Reset Timer 4s count because we still have sync
-	//TMR4 = 0;
-	TCNT2 = 0;
+	//Reset timeout count because we still have sync
+	serial_timeout = 0;
 
 	//If we are simply syncing, we need to check the received message
 	if (sync == 0)
@@ -93,7 +96,7 @@ void packetizer_callback(uint8 *message, uint8 size)
 			sync = 1;
 		}
 	}
-	else
+else
 	{
 		if (size > 0)
 		{

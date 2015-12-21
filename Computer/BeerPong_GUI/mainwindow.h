@@ -40,6 +40,6 @@ private:
     QPalette *disabled;
 };
 
-int convert(unsigned char *buf);
+unsigned int convert(unsigned char *buf);
 
 #endif // MAINWINDOW_H

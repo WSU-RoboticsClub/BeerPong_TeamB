@@ -40,7 +40,7 @@ void MainWindow::on_button_getsync_clicked()
         port->send(buffer, size);
 
 
-    refresh->start(10);
+    refresh->start(100);
     ui->button_getsync->setEnabled(false);
     ui->button_getsync->setVisible(false);
 }
@@ -69,7 +69,7 @@ void MainWindow::refresh_gui()
     size = port->get(buffer);
 
     //Convert the result
-    int rpm = convert(buffer);
+    unsigned int rpm = convert(buffer);
 
     //Set the text on the GUI
     this->ui->disp_rpm_m1->setText(QString::number(rpm));
@@ -116,12 +116,11 @@ void MainWindow::on_button_set_targets_clicked()
     port->send(message, 5);
 }
 
-int convert(unsigned char *buf)
+unsigned int convert(unsigned char *buf)
 {
-    int response = 0, i = 0;
+    unsigned int response = 0, i = 0;
 
     memcpy(&response, buf, 4);
-
     return response;
 }
 

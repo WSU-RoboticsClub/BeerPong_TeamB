@@ -30,6 +30,18 @@ extern "C" {
 #define M2_READ_RPM 0x12
 #define PB_CLK 16000000
 
+//PID Struct Definition
+typedef struct PID_CONTROLLER{
+	double dState;
+	double iState;
+	double iMin;
+	double iMax;
+
+	double pGain;
+	double iGain;
+	double dGain;
+} PID;
+
 
 /* Function Prototypes */
 //main
@@ -39,12 +51,19 @@ void resync();
 
 //Motors
 void configureMotors(); //Configuration and instantiation of the flywheel motors
-	
+void motor_callback(); //Callback for Timer_0 overflow	
+void configureFeedback(); //configure feedback from the motors through hall effect sensors
+void interrupt_m1(); //Callback function for feedback for motor 1
+void feedback_tmr_ovf();
+
 //Serial
 void establishUART(); //Create our serial interface with packetizer enabled
 void acquireSynchronization(); //Acquire synchronization with the main computer
 void packetizer_callback(uint8 *message, uint8 size); //Callback for the packetizer receive
 void configureFeedback(); //Configure the feedback for the motors
+
+//PID
+double updatePID(PID *controller, double error, double position); //Update a PID controller state
 
 #ifdef	__cplusplus
 }
