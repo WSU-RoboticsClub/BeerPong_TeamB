@@ -54,7 +54,10 @@ void configureMotors(); //Configuration and instantiation of the flywheel motors
 void motor_callback(); //Callback for Timer_0 overflow	
 void configureFeedback(); //configure feedback from the motors through hall effect sensors
 void interrupt_m1(); //Callback function for feedback for motor 1
+void interrupt_m2(); //Callback function for feedback for motor 2
 void feedback_tmr_ovf();
+
+
 
 //Serial
 void establishUART(); //Create our serial interface with packetizer enabled

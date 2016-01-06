@@ -113,11 +113,11 @@ else
 				break;
 				case M1_READ_RPM:
 				//Transmit the current RPMs for M1
-				send_packet(PACKET_UART_CH_1, &M1_RPM_status, sizeof(M1_RPM_status));
+				send_packet(PACKET_UART_CH_1, (uint8 *)&M1_RPM_status, sizeof(M1_RPM_status));
 				break;
 				case M2_READ_RPM:
 				//Transmit the current RPMs for M2
-				send_packet(PACKET_UART_CH_1, &M2_RPM_status, sizeof(M2_RPM_status));
+				send_packet(PACKET_UART_CH_1, (uint8 *)&M2_RPM_status, sizeof(M2_RPM_status));
 				break;
 				default:
 				break;

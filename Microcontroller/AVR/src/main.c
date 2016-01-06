@@ -9,11 +9,10 @@
     
 
     //Motor Variables
-    volatile long M1_RPM_goal = 60, 
+    volatile long M1_RPM_goal = 0, 
                  M2_RPM_goal = 0,
                  M1_RPM_status = 0, 
-                 M2_RPM_status = 60;			 
-	volatile long timerOne_overflow_cnt = 0; //Overflow count since last RPM calculation 
+                 M2_RPM_status = 0;			 
     
 /*************************************************************************
  Main Function

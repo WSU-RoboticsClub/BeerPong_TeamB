@@ -78,7 +78,7 @@ void Serial::configure(int baud_rate)
     //This will make the port never time out unless 255 or specified characters are read on the port
     //this setup will cause the program to hang if no data is being received on the port
     options.c_cc[VMIN] = 255;
-    options.c_cc[VTIME] = 0;
+    options.c_cc[VTIME] = 5;
 
     if (tcsetattr(fd, TCSANOW, &options) != 0)
     {
