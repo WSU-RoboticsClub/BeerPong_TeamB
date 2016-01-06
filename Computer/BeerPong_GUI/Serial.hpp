@@ -11,6 +11,7 @@ typedef char u8;
 #include <unistd.h>
 #include <stdint.h>
 #include <iostream>
+#include <errno.h>
 #include <sys/ioctl.h>
 
 using std::cout;

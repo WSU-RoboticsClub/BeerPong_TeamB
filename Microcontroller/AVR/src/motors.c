@@ -176,7 +176,7 @@ void motor_callback()
 {
 	//Increment global counter variable for timeout on serial sync
 	serial_timeout++;
-	if (serial_timeout >= 980)
+	if (serial_timeout >= 294) //300ms timeout
 		sync = 0; //We have lost sync.
 
 	//Update the PID

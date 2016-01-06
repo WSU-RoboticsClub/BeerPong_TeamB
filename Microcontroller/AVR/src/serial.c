@@ -52,7 +52,7 @@ void acquireSynchronization()
 	Timer_Config t1 = {0};
 	t1.callback = &timeOut_sync;
 	t1.enabled = TRUE;
-	t1.frequency = 1;
+	t1.frequency = 3;
 	t1.pbclk = PB_CLK;
 	t1.which_timer = TIMER_1;
 	initialize_Timer(t1);
@@ -92,7 +92,7 @@ void packetizer_callback(uint8 *message, uint8 size)
 	{
 		if (size > 0)
 		{
-			if (message[0] == KEY && size == sizeof(KEY))
+			if (message[0] == KEY)
 			sync = 1;
 		}
 	}
@@ -102,23 +102,29 @@ else
 		{
 			switch (message[0]) {
 				case M1_SET_RPM:
-				//Update the RPM Setting for M1
-				if (size >= 5)
-				M1_RPM_goal = convert_to_int(&(message[1]));
-				break;
+					//Update the RPM Setting for M1
+					if (size >= 5)
+					M1_RPM_goal = convert_to_int(&(message[1]));
+					break;
 				case M2_SET_RPM:
-				//Update the RPM Setting for M2
-				if (size >= 5)
-				M2_RPM_goal = convert_to_int(&(message[1]));
-				break;
+					//Update the RPM Setting for M2
+					if (size >= 5)
+					M2_RPM_goal = convert_to_int(&(message[1]));
+					break;
 				case M1_READ_RPM:
-				//Transmit the current RPMs for M1
-				send_packet(PACKET_UART_CH_1, (uint8 *)&M1_RPM_status, sizeof(M1_RPM_status));
-				break;
+					//Transmit the current RPMs for M1
+					send_packet(PACKET_UART_CH_1, (uint8 *)&M1_RPM_status, sizeof(M1_RPM_status));
+					break;
 				case M2_READ_RPM:
-				//Transmit the current RPMs for M2
-				send_packet(PACKET_UART_CH_1, (uint8 *)&M2_RPM_status, sizeof(M2_RPM_status));
-				break;
+					//Transmit the current RPMs for M2
+					send_packet(PACKET_UART_CH_1, (uint8 *)&M2_RPM_status, sizeof(M2_RPM_status));
+					break;
+				case M1_READ_GOAL:
+					send_packet(PACKET_UART_CH_1, (uint8 *)&M1_RPM_goal, sizeof(M1_RPM_goal));
+					break;
+				case M2_READ_GOAL:
+					send_packet(PACKET_UART_CH_1, (uint8 *)&M2_RPM_goal, sizeof(M2_RPM_goal));
+					break;
 				default:
 				break;
 			}

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <iostream>
+#include <ctime>
 \
 
 #include "Packetizer.hpp"
@@ -20,6 +21,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    unsigned int sendQueryCommand(char command);
     ~MainWindow();
 
 private slots:

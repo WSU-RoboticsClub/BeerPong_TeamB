@@ -52,37 +52,39 @@ int Serial::sread(uint8_t *buf, int num)
     return i;
 }
 
-void Serial::configure(int baud_rate)
+void Serial::configure(int baudRate)
 {
-    struct termios options = {0};
-    int fd = this->port_fd;
+    struct termios portConfig = {0}; //initialize our termios structure
+    int portHandle = this->port_fd;
 
-    //INFO("configuring port");
-
-    if (tcgetattr(this->port_fd, &options) != 0)
-    {
-        cout << "Failed to get attributes." << endl;
+    if (tcgetattr(portHandle, &portConfig) != 0) {
+        printf("Get Attributes failed.\n Error: %d", errno);
+        //return -1;
     }
 
-    options.c_iflag = 0; //no input handling
-    options.c_oflag = 0; //no output mapping
-    options.c_cflag = (options.c_cflag & ~CSIZE) | CS8; //utilize 8 bit works and clear the current word setting to be overwritten (masked)
-    options.c_cflag |= CLOCAL | CREAD; //disable modem controls and enable the receiver
+    //manually configure the port flags
+    portConfig.c_oflag = 0; //do not filter the output of the serial port
+    portConfig.c_lflag = 0; //Do not use signalling characters
 
-    cfmakeraw(&options);
+    portConfig.c_cflag |= (portConfig.c_cflag & ~CSIZE) | CS8; //Set 8 bit
+    portConfig.c_cflag |= CREAD | CLOCAL; //8 bit, enable receiver, ignore modem controls
+    portConfig.c_cflag &= ~(PARENB | PARODD); //Disable parity
+    portConfig.c_cflag &= ~(CSTOPB); //Set 1 stop bit
+    portConfig.c_cflag &= ~(CRTSCTS); //Disable RTS CTS flow control
 
-    cfsetispeed(&options, baud_rate);
-    cfsetospeed(&options, baud_rate);
+    portConfig.c_iflag |= IGNBRK | IGNPAR | IGNCR; //ignore break, parity errors, and carriage returns
+    portConfig.c_iflag &= ~(IXON | IXOFF | IXANY);
 
-    //set the timeout to be 0 and the minimum characters to 255.
-    //This will make the port never time out unless 255 or specified characters are read on the port
-    //this setup will cause the program to hang if no data is being received on the port
-    options.c_cc[VMIN] = 255;
-    options.c_cc[VTIME] = 5;
+    cfsetospeed(&portConfig, baudRate);
+    cfsetispeed(&portConfig, baudRate);
 
-    if (tcsetattr(fd, TCSANOW, &options) != 0)
+    portConfig.c_cc[VMIN] = 255; //the port will not return until timeout occurs or bytes requested are red OR 255 (whichever is less)
+    portConfig.c_cc[VTIME] = 5; //the port has .5 second timeout after first byte
+
+    if (tcsetattr(portHandle, TCSANOW,  &portConfig) != 0)
     {
-        cout << "Failed to set the serial port options.";
+        printf("Failed to set port attributes. Error: %d\n", errno);
+        //return -1;
     }
 
     //INFO("done!");

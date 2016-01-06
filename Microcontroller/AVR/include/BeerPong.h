@@ -19,7 +19,7 @@ extern "C" {
 #include "sublibinal.h"
 
 /* Global Definitions */
-#define BUFFER_SIZE 256 // This defines the size of the UART buffers
+#define BUFFER_SIZE 512 // This defines the size of the UART buffers
 #define SYNC_COUNT 10 // This defines how many messages are sent to acquire sync
 #define REFRESH_FREQUENCY 1 //Rate at which feedback status is updated
 
@@ -28,6 +28,9 @@ extern "C" {
 #define M2_SET_RPM 0x02
 #define M1_READ_RPM 0x11
 #define M2_READ_RPM 0x12
+#define M1_READ_GOAL 0x31
+#define M2_READ_GOAL 0x32
+
 #define PB_CLK 16000000
 
 //PID Struct Definition

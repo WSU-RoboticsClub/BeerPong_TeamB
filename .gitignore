@@ -2,3 +2,5 @@
 .*.swp
 *.exe
 *.o
+Computer/BeerPong_GUI/build/*
+Microcontroller/AVR/build/*

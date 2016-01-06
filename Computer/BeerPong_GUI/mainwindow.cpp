@@ -45,55 +45,68 @@ void MainWindow::on_button_getsync_clicked()
     ui->button_getsync->setVisible(false);
 }
 
+unsigned int MainWindow::sendQueryCommand(char command)
+{
+    int available = 0;
+    unsigned char buffer[10];
+    int size;
+
+    //Query the port for status information
+    port->send((uint8_t *)&command, sizeof(command));
+
+    int resends = 0;
+    time_t start = clock();
+    //wait until there is enough data to be read
+    while (available < 6 && resends < 5)
+    {
+        //repeat command if no responses
+        if (((double)(clock() - start))/CLOCKS_PER_SEC >= .01)
+        {
+            resends++;
+            port->send((uint8_t *)&command, sizeof(command));
+            start = clock();
+        }
+        available = port->getBytesAvailable();
+    }
+    if (resends >= 5)
+    {
+        this->on_button_getsync_clicked();
+    }
+    else
+    {
+        //Read the status
+        size = port->get((uint8_t *)buffer);
+
+        //Convert the result
+        return convert(buffer);
+    }
+    return 0;
+
+}
+
 void MainWindow::refresh_gui()
 {
-    unsigned char command = 0x11;
-    unsigned char buffer[10];
-    int available = 0;
+    refresh->stop();
     int size = 0;
 
     //flush the buffer
     port->flush();
 
-    //Query the port for status information
-    port->send(&command, sizeof(command));
-
-    //wait until there is enough data to be read
-    while (available < 6)
-    {
-        available = port->getBytesAvailable();
-
-    }
-
-    //Read the status
-    size = port->get(buffer);
-
-    //Convert the result
-    unsigned int rpm = convert(buffer);
-
-    //Set the text on the GUI
+    unsigned int rpm = sendQueryCommand(0x11);
     this->ui->disp_rpm_m1->setText(QString::number(rpm));
 
-
-    //Query motor 2
-    command = 0x12;
-
-    //Query the port for status information
-    port->send(&command, 1);
-
-    //wait until there is enough data to be read
-    while (port->getBytesAvailable() < 6);
-
-    //Read the status
-    size = port->get(buffer);
-
-    //Convert the result
-    rpm = convert(buffer);
-
-    //Set the text on the GUI
+    rpm = sendQueryCommand(0x12);
     this->ui->disp_rpm_m2->setText(QString::number(rpm));
 
+    unsigned int goal = sendQueryCommand(0x31);
+    this->ui->disp_goal_m1->setText(QString::number(goal));
+
+    goal = sendQueryCommand(0x32);
+    this->ui->disp_goal_m2->setText(QString::number(goal));
+    refresh->start(100);
 }
+
+
 void MainWindow::on_button_set_targets_clicked()
 {
     //Form our messages
