@@ -11,14 +11,17 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = BeerPong_GUI
 TEMPLATE = app
 
+INCLUDEPATH += serial/
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    Packetizer.cpp \
-    Serial.cpp
+    serial/src/Serial.cpp \
+    serial/src/Packetizer.cpp \
+    portreader.cpp
 
 HEADERS  += mainwindow.h \
-    Packetizer.hpp \
-    Serial.hpp
+    serial/include/Serial.hpp \
+    serial/include/Packetizer.hpp \
+    portreader.hpp
 
 FORMS    += mainwindow.ui

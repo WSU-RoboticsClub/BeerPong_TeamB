@@ -17,7 +17,7 @@ extern "C" {
 
 /* Includes */
 #include "sublibinal.h"
-
+#include <string.h>
 /* Global Definitions */
 #define BUFFER_SIZE 512 // This defines the size of the UART buffers
 #define SYNC_COUNT 10 // This defines how many messages are sent to acquire sync
@@ -35,22 +35,20 @@ extern "C" {
 
 //PID Struct Definition
 typedef struct PID_CONTROLLER{
-	double dState;
-	double iState;
-	double iMin;
-	double iMax;
+	float dState;
+	float iState;
+	float iMin;
+	float iMax;
 
-	double pGain;
-	double iGain;
-	double dGain;
+	float pGain;
+	float iGain;
+	float dGain;
 } PID;
 
 
 /* Function Prototypes */
 //main
-void configureSystemTimer(); //Configure the main system timer for calculating state from feedback
 void updateStatus();
-void resync();
 
 //Motors
 void configureMotors(); //Configuration and instantiation of the flywheel motors
@@ -64,13 +62,12 @@ void feedback_tmr_ovf();
 
 //Serial
 void establishUART(); //Create our serial interface with packetizer enabled
-void acquireSynchronization(); //Acquire synchronization with the main computer
 void packetizer_callback(uint8 *message, uint8 size); //Callback for the packetizer receive
 void configureFeedback(); //Configure the feedback for the motors
 
 //PID
-double updatePID(PID *controller, double error, double position); //Update a PID controller state
-
+float updatePID(PID *controller, float error, float position); //Update a PID controller state
+void updatePIDControllers();
 #ifdef	__cplusplus
 }
 #endif

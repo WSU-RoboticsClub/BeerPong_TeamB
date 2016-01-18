@@ -2,12 +2,9 @@
 
 	
 	//Serial Variables	
-    char uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE]; //Serial buffers
-	volatile int sync = 0; //Our sync status.
-	volatile long serial_timeout = 0; //Timer1 overflows since last serial message. When >= 980, we have no serail for 1 second, so lose sync
-	const char KEY = 'a'; //Key for synchronization. We expect to get this echoed for sync
-    
+    uint8_t uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE]; //Serial buffers
 
+	char update = 0;
     //Motor Variables
     volatile long M1_RPM_goal = 0, 
                  M2_RPM_goal = 0,
@@ -26,8 +23,7 @@ int main(void) {
     
     
     while (1) {
-        if (!sync)
-            acquireSynchronization();
-        bg_process_packetizer(PACKET_UART_CH_1); //process received messages
+        bg_process_packetizer(PACKET_UART_CH_1); //process received messagesi
+		if (update) updatePIDControllers();
     }
 }

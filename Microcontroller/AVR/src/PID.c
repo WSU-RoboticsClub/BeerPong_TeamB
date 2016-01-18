@@ -1,8 +1,8 @@
 #include "BeerPong.h"
 
-double updatePID(PID *controller, double error, double position)
+float updatePID(PID *controller, float error, float position)
 {
-	double pTerm, iTerm, dTerm;		
+	float pTerm, iTerm, dTerm;		
 	
 	//Calculate the P term
 	pTerm = controller->pGain * error;

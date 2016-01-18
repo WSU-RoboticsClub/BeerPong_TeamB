@@ -6,130 +6,130 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Beer Pong Robot GUI - Alpha v0.1");
-    refresh = new QTimer();
-    connect(refresh, SIGNAL(timeout()), this, SLOT(refresh_gui()));
-    reset = new QTimer();
-    connect(reset, SIGNAL(timeout()), this, SLOT(reset_gui()));
-    port = new Packetizer("/dev/ttyUSB0", '!');
+    this->setWindowTitle("Beer Pong Robot GUI - Alpha v1.0");
     disabled = new QPalette();
+    enabled = new QPalette();
     disabled->setColor(QPalette::Base, QColor(235,235,235));
+    enabled->setColor(QPalette::Base, QColor(255,255,255));
     ui->disp_rpm_m1->setPalette(*disabled);
     ui->disp_rpm_m2->setPalette(*disabled);
+
+    reader = NULL;
+
+    //Enable the open/close button and setTargets
+    ui->button_set_targets->setEnabled(false);
+    ui->button_set_targets->setPalette(*disabled);
+
+    ui->button_openClose->setEnabled(false);
+    ui->button_openClose->setPalette(*disabled);
+    ui->button_openClose->setText("Open");
+    updatePorts = new QTimer(this);
+    connect(updatePorts, SIGNAL(timeout()), this, SLOT(populatePorts()));
+
+    populatePorts();
+    updatePorts->start(3000); //Update every 3 seconds
 }
+
+void MainWindow::updateData(QString data)
+{
+    int convertVal;
+    //Parse the data to figure out with data this is
+    //-> First byte is the command byte that was sent
+    string tmp;
+    char arr[4];
+    if (data.size() > 1)
+    {
+        for (int i = 0; i < 4; i++)
+            arr[i] = data.at(i+1).toLatin1();
+
+        convertVal = convert(arr);
+
+        switch (data.at(0).toLatin1())
+        {
+        case MOTOR1_RPMS:
+            ui->disp_rpm_m1->setText(QString::number(convertVal));
+            break;
+        case MOTOR2_RPMS:
+            ui->disp_rpm_m2->setText(QString::number(convertVal));
+            break;
+        case MOTOR1_GOAL:
+            ui->disp_goal_m1->setText(QString::number(convertVal));
+            break;
+        case MOTOR2_GOAL:
+            ui->disp_goal_m2->setText(QString::number(convertVal));
+            break;
+        }
+    }
+}
+
+#ifdef _WIN32
+
+void MainWindow::populatePorts()
+{
+
+}
+
+#elif __linux
+
+void MainWindow::populatePorts()
+{
+
+    string original = ui->select_port->currentText().toStdString();
+    ui->select_port->clear();
+    ui->select_port->addItem("None");
+    //Use dirent to query for all available ports
+    DIR *directory;
+    struct dirent *entry;
+    char dir[] = "/dev/";
+
+    if ((directory = opendir(dir)) != NULL)
+    {
+        while ((entry = readdir(directory)) != NULL)
+        {
+            if (strncmp(entry->d_name, "ttyUSB", 6) == 0 || strncmp(entry->d_name, "ttyACM", 6) == 0)
+            {
+                ui->select_port->addItem(QString::fromLatin1(entry->d_name));
+                if (QString::fromLatin1(entry->d_name).toStdString() == original)
+                    ui->select_port->setCurrentIndex(ui->select_port->count()-1);
+            }
+        }
+    }
+
+
+
+}
+
+#endif
 
 MainWindow::~MainWindow()
 {
-    delete port;
-    delete disabled;
-    delete reset;
-    delete refresh;
+    if (reader != NULL) delete reader;
+    delete disabled;\
+    delete enabled;
     delete ui;
 }
 
-void MainWindow::on_button_getsync_clicked()
-{
-    unsigned char buffer[20];
-    int size = -1;
-    //Attempt to get sync on the UART channel
-    while (size == -1)
-        size = port->get(buffer);
-
-    //Now, we have gotten a packet. Retransmit it 10 times so that the microcontroller can have sync as well
-    for (int i = 0; i < 10; i++)
-        port->send(buffer, size);
-
-
-    refresh->start(100);
-    ui->button_getsync->setEnabled(false);
-    ui->button_getsync->setVisible(false);
-}
-
-unsigned int MainWindow::sendQueryCommand(char command)
-{
-    int available = 0;
-    unsigned char buffer[10];
-    int size;
-
-    //Query the port for status information
-    port->send((uint8_t *)&command, sizeof(command));
-
-    int resends = 0;
-    time_t start = clock();
-    //wait until there is enough data to be read
-    while (available < 6 && resends < 5)
-    {
-        //repeat command if no responses
-        if (((double)(clock() - start))/CLOCKS_PER_SEC >= .01)
-        {
-            resends++;
-            port->send((uint8_t *)&command, sizeof(command));
-            start = clock();
-        }
-        available = port->getBytesAvailable();
-    }
-    if (resends >= 5)
-    {
-        this->on_button_getsync_clicked();
-    }
-    else
-    {
-        //Read the status
-        size = port->get((uint8_t *)buffer);
-
-        //Convert the result
-        return convert(buffer);
-    }
-    return 0;
-
-}
-
-void MainWindow::refresh_gui()
-{
-    refresh->stop();
-    int size = 0;
-
-    //flush the buffer
-    port->flush();
-
-    unsigned int rpm = sendQueryCommand(0x11);
-    this->ui->disp_rpm_m1->setText(QString::number(rpm));
-
-    rpm = sendQueryCommand(0x12);
-    this->ui->disp_rpm_m2->setText(QString::number(rpm));
-
-    unsigned int goal = sendQueryCommand(0x31);
-    this->ui->disp_goal_m1->setText(QString::number(goal));
-
-    goal = sendQueryCommand(0x32);
-    this->ui->disp_goal_m2->setText(QString::number(goal));
-    refresh->start(100);
-}
-
-
 void MainWindow::on_button_set_targets_clicked()
 {
+
     //Form our messages
-    unsigned char message[5];
+    char message[6] = {'\n'};
     int rpm;
 
     rpm = this->ui->spinBox_target_m1->text().toInt();
     message[0] = 0x01;
     memcpy(&(message[1]), &rpm, 4);
-
-    //Send messages
-    port->send(message, 5);
-
+    QString tmp = QString::fromLatin1(message, 5);
+    emit sendCommand(tmp);
 
     rpm = this->ui->spinBox_target_m2->text().toInt();
     message[0] = 0x02;
     memcpy(&(message[1]), &rpm, 4);
+    emit sendCommand(QString::fromLatin1(message, 5));
 
-    //Send messages
-    port->send(message, 5);
 }
 
-unsigned int convert(unsigned char *buf)
+unsigned int convert(const char *buf)
 {
     unsigned int response = 0, i = 0;
 
@@ -137,23 +137,55 @@ unsigned int convert(unsigned char *buf)
     return response;
 }
 
-void MainWindow::on_button_reset_clicked()
-{
-    refresh->stop();
-    reset->start(300); //wait .3 seconds for the microcontroller to lose sync
-}
-
-
-void MainWindow::reset_gui()
-{
-    reset->stop();
-    port->flush();
-    ui->button_getsync->setEnabled(true);
-    ui->button_getsync->setVisible(true);
-
-}
-
 void MainWindow::on_button_exit_clicked()
 {
     exit(0);
+}
+
+void MainWindow::on_button_openClose_clicked()
+{
+    if (ui->button_openClose->text() == "Open")
+    {
+        reader->Start();
+        ui->button_openClose->setText("Close");
+        ui->select_port->setPalette(*disabled);
+        ui->select_port->setEnabled(false);
+    }
+    else
+    {
+        reader->Stop();
+        ui->button_openClose->setText("Open");
+        ui->select_port->setPalette(*enabled);
+        ui->select_port->setEnabled(true);
+    }
+}
+
+void MainWindow::on_select_port_activated(const QString &arg1)
+{
+    QString port = arg1;
+#ifdef __linux
+    port = "/dev/" + port;
+#endif
+    //Delete the current reader if it exists before we make a new one
+    if (reader)
+    {
+        QObject::disconnect(reader, SIGNAL(processedPacket(QString)), this, SLOT(updateData(QString)));
+        delete reader;
+        reader = NULL;
+    }
+
+    if (arg1 != "None")
+    {
+        //Create and connect our reader
+        reader = new PortReader(this, port.toStdString());
+        QObject::connect(reader, SIGNAL(processedPacket(QString)), this, SLOT(updateData(QString)));
+
+        //Enable the open/close button and setTargets
+        ui->button_set_targets->setEnabled(true);
+        ui->button_set_targets->setPalette(*enabled);
+
+        ui->button_openClose->setEnabled(true);
+        ui->button_openClose->setPalette(*enabled);
+        ui->button_openClose->setText("Open");
+    }
 }

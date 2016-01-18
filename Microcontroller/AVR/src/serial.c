@@ -1,25 +1,20 @@
 #include "BeerPong.h"
 
-extern char uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE];
-extern volatile int sync;
-extern const char KEY;
-extern volatile long serial_timeout;
+extern uint8_t uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE];
 
 //Motor Variables
 extern volatile long M1_RPM_goal,
-M2_RPM_goal,
-M1_RPM_status,
-M2_RPM_status;
+	   M2_RPM_goal,
+	   M1_RPM_status,
+	   M2_RPM_status;
 volatile int timeout;
-void timeOut_sync();
 
-int convert_to_int(uint8 *message);
-
+long convert_to_int(uint8 *message);
 
 void establishUART()
 {
 	UART_Config ucon = {0};
-	
+
 	ucon.speed = 115200;
 	ucon.pb_clk = PB_CLK;
 	ucon.rx_buffer_ptr = uart_rx_buffer;
@@ -31,7 +26,7 @@ void establishUART()
 	ucon.tx_callback = NULL;
 	ucon.tx_en = TRUE;
 	initialize_UART(ucon);
-	
+
 	Packetizer_Config pcon = {0};
 	pcon.callback = &packetizer_callback;
 	pcon.control_byte = '!';
@@ -40,109 +35,60 @@ void establishUART()
 	initialize_packetizer(pcon);
 }
 
-void acquireSynchronization()
-{
-	int i = 0;
-	
-	disable_Interrupt(INT_0);
-	disable_Interrupt(INT_1);
-
-	//Initialize Timer_1 to be used as a form of timeout. If we have not received messages back from the CPU
-	//by the time its interrupt fires, we will retry
-	Timer_Config t1 = {0};
-	t1.callback = &timeOut_sync;
-	t1.enabled = TRUE;
-	t1.frequency = 3;
-	t1.pbclk = PB_CLK;
-	t1.which_timer = TIMER_1;
-	initialize_Timer(t1);
-	char key = KEY;
-	
-	while (!sync)
-	{
-		//Enqueue SYNC_COUNT of KEY messages into the UART transmission queue to be packetized
-		for (i = 0; i < SYNC_COUNT; i++) {
-			send_packet(PACKET_UART_CH_1, &key, sizeof(key));
-		}
-		
-		//Now, we will wait for either a time out or a proper response from the
-		while (timeout == 0 && sync == 0)
-		{
-			bg_process_packetizer(PACKET_UART_CH_1); //process received messages
-		}
-		
-		//If we got sync, disable timer - otherwise reset timeout and try again
-		if (sync)
-		disable_Timer(TIMER_1);
-		else
-		timeout = 0;
-	}
-	configureFeedback();
-}
-
 void packetizer_callback(uint8 *message, uint8 size)
 {
 	
-	
-	//Reset timeout count because we still have sync
-	serial_timeout = 0;
+	char packet[256];
 
-	//If we are simply syncing, we need to check the received message
-	if (sync == 0)
+	if (size > 0)
 	{
-		if (size > 0)
-		{
-			if (message[0] == KEY)
-			sync = 1;
-		}
-	}
-else
-	{
-		if (size > 0)
-		{
-			switch (message[0]) {
-				case M1_SET_RPM:
-					//Update the RPM Setting for M1
-					if (size >= 5)
+		switch (message[0]) {
+			case M1_SET_RPM:
+				//Update the RPM Setting for M1
+				if (size >= 5)
 					M1_RPM_goal = convert_to_int(&(message[1]));
-					break;
-				case M2_SET_RPM:
-					//Update the RPM Setting for M2
-					if (size >= 5)
-					M2_RPM_goal = convert_to_int(&(message[1]));
-					break;
-				case M1_READ_RPM:
-					//Transmit the current RPMs for M1
-					send_packet(PACKET_UART_CH_1, (uint8 *)&M1_RPM_status, sizeof(M1_RPM_status));
-					break;
-				case M2_READ_RPM:
-					//Transmit the current RPMs for M2
-					send_packet(PACKET_UART_CH_1, (uint8 *)&M2_RPM_status, sizeof(M2_RPM_status));
-					break;
-				case M1_READ_GOAL:
-					send_packet(PACKET_UART_CH_1, (uint8 *)&M1_RPM_goal, sizeof(M1_RPM_goal));
-					break;
-				case M2_READ_GOAL:
-					send_packet(PACKET_UART_CH_1, (uint8 *)&M2_RPM_goal, sizeof(M2_RPM_goal));
-					break;
-				default:
 				break;
-			}
+			case M2_SET_RPM:
+				//Update the RPM Setting for M2
+				if (size >= 5)
+					M2_RPM_goal = convert_to_int(&(message[1]));
+				break;
+			case M1_READ_RPM:
+				//Transmit the current RPMs for M1
+				memcpy(&(packet[1]), (const void *) &M1_RPM_status, sizeof(M1_RPM_status));
+				packet[0] = message[0];
+				send_packet(PACKET_UART_CH_1, (uint8 *)packet, 1+sizeof(M1_RPM_status));
+				break;
+			case M2_READ_RPM:
+				//Transmit the current RPMs for M2
+				memcpy(&(packet[1]),(const void *) &M2_RPM_status, sizeof(M2_RPM_status));
+				packet[0] = message[0];
+				send_packet(PACKET_UART_CH_1, (uint8 *)packet, 1+sizeof(M1_RPM_status));
+				break;
+			case M1_READ_GOAL:
+				memcpy(&(packet[1]), (const void *)&M1_RPM_goal, sizeof(M1_RPM_goal));
+				packet[0] = message[0];
+				send_packet(PACKET_UART_CH_1, (uint8 *)packet, 1+sizeof(M1_RPM_status));
+				break;
+			case M2_READ_GOAL:
+				memcpy(&(packet[1]), (const void *)&M2_RPM_goal, sizeof(M2_RPM_goal));
+				packet[0] = message[0];
+				send_packet(PACKET_UART_CH_1, (uint8 *)packet, 1+sizeof(M1_RPM_status));
+				break;
+			default:
+				send_packet(PACKET_UART_CH_1, NULL, 0);
+				break;
 		}
 	}
+	else
+		send_packet(PACKET_UART_CH_1, NULL, 0);
+
 }
 
-void timeOut_sync()
+long convert_to_int(uint8 *message)
 {
-	timeout = 1;
-}
+	long response = 0;
+	memcpy(&response, message, sizeof(response));
 
-int convert_to_int(uint8 *message)
-{
-	int response = 0, i = 0;
-	
-	for (i = 0; i < 4; i++)
-	response |= message[i]<<(8*i);
-	
 	return response;
 }

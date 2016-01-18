@@ -15,17 +15,18 @@ volatile long lastRead_m2 = 0;//Internal
 volatile float M1_dutyCycle,
 		 	   M2_dutyCycle;
 
+volatile long error_m1, error_m2;
+extern char update;
+
 //Motor control systems
 PID m1 = {0}, m2= {0};
 
 //Timeout variables
-extern long serial_timeout;
-extern int sync;
 
 //The motors will utilize Timer 1
 void configureMotors()
 {
-	Timer_Config timerOne = {0}, timerTwo = {0};
+	Timer_Config timerOne = {0};
 	PWM_Config motorOne = {0}, motorTwo = {0};
 
 	timerOne.precision = SIMPLE;	
@@ -143,9 +144,8 @@ void interrupt_m2()
 	//Sysclock = 16MHz
 	//timer1 divider = 1
 	//timePerCount = 1/(16MHz) = 62.5 nanoseconds
-	int i;
 	long totalCounts = (TCNT1 - lastRead_m2) + 65535*timerOne_overflow_cnt_m2;
-	double totalTime = totalCounts * ((1/(double)16000000)/60);
+	double totalTime = totalCounts * ((1/(float)16000000)/60);
 	M2_RPM_status = ((double)1)/(totalTime*2); //Multiply total time by 2 (We have four magnets, so each interrupt is actually only 1/2 of a rotation)
 
 	lastRead_m2 = TCNT1; //Reset last read 
@@ -163,7 +163,6 @@ void interrupt_m1()
 	//Sysclock = 16MHz
 	//timer1 divider = 1
 	//timePerCount = 1/(16MHz) = 62.5 nanoseconds
-	int i;
 	long totalCounts = (TCNT1 - lastRead_m1) + 65535*timerOne_overflow_cnt_m1;
 	double totalTime = totalCounts * ((1/(double)16000000)/60);
 	M1_RPM_status = ((double)1)/(totalTime*4); //Multiply total time by 4 (We have four magnets, so each interrupt is actually only 1/4 of a rotation)
@@ -174,15 +173,16 @@ void interrupt_m1()
 
 void motor_callback()
 {
-	//Increment global counter variable for timeout on serial sync
-	serial_timeout++;
-	if (serial_timeout >= 294) //300ms timeout
-		sync = 0; //We have lost sync.
 
-	//Update the PID
-	//motor 1
-	double error = M1_RPM_goal - M1_RPM_status;
-	double feedBack = updatePID(&m1, error, (double)M1_RPM_status);
+	error_m1 = M1_RPM_goal - M1_RPM_status;
+	error_m2 = M2_RPM_goal - M2_RPM_status;
+	update = 1;
+}
+
+void updatePIDControllers()
+{
+	update = 0;
+	float feedBack = updatePID(&m1, error_m1, (float)M1_RPM_status);
 	M1_dutyCycle += feedBack;
 	if (M1_dutyCycle > 1)
 		M1_dutyCycle = 1;
@@ -190,8 +190,7 @@ void motor_callback()
 		M1_dutyCycle = 0;
 	
 	//motor 2
-	error = M2_RPM_goal - M2_RPM_status;
-	feedBack = updatePID(&m2, error, (double)M2_RPM_status);
+	feedBack = updatePID(&m2, error_m2, (float)M2_RPM_status);
 	M2_dutyCycle += feedBack;
 	if (M2_dutyCycle > 1)
 		M2_dutyCycle = 1;
@@ -201,3 +200,4 @@ void motor_callback()
 	update_PWM(PWM_CH_1B_SIMPLE, M2_dutyCycle);
 	update_PWM(PWM_CH_1A_SIMPLE, M1_dutyCycle);
 }
+

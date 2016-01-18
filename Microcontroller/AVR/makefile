@@ -2,7 +2,7 @@
 CC=avr-gcc
 OCC=avr-objcopy
 OCFLAGS= -j .text -j .data -O ihex
-CFLAGS=-mmcu=atmega328p -Iinclude/ -Isublib_avr/include/ -L$(LIB_PATH)
+CFLAGS=-mmcu=atmega328p -Iinclude/ -Isublib_avr/include/ -L$(LIB_PATH) -Wall
 
 LIB_PATH=sublib_avr/build/
 LIB_NAME=SUBLIBinal_avr

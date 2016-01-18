@@ -5,11 +5,22 @@
 #include <QTimer>
 #include <iostream>
 #include <ctime>
-\
+#include <QString>
 
-#include "Packetizer.hpp"
+#ifdef _WIN32
+#include <Windows.h>
+#elif __linux
+#include <dirent.h>
+#endif
 
-using std::cout;
+#define MOTOR1_RPMS 0x11
+#define MOTOR2_RPMS 0x12
+#define MOTOR1_GOAL 0x31
+#define MOTOR2_GOAL 0x32
+
+using namespace std;
+
+class PortReader;
 
 namespace Ui {
 class MainWindow;
@@ -21,27 +32,33 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-    unsigned int sendQueryCommand(char command);
     ~MainWindow();
 
+signals:
+    void sendCommand(QString command);
+
 private slots:
-    void refresh_gui();
-    void reset_gui();
-    void on_button_getsync_clicked();
 
-    void on_button_set_targets_clicked();
-
-    void on_button_reset_clicked();
-
+    void on_button_set_targets_clicked();\
+    void updateData(QString data);
+    void populatePorts();
     void on_button_exit_clicked();
+
+    void on_button_openClose_clicked();
+
+    void on_select_port_activated(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
-    Packetizer *port;
-    QTimer *refresh, *reset;
+    PortReader *reader;
     QPalette *disabled;
+    QPalette *enabled;
+    QTimer *updatePorts;
 };
 
-unsigned int convert(unsigned char *buf);
+
+#include "portreader.hpp"
+
+unsigned int convert(const char *buf);
 
 #endif // MAINWINDOW_H

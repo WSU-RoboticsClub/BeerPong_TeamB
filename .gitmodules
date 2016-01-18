@@ -4,3 +4,6 @@
 [submodule "Microcontroller/AVR/sublib_avr"]
 	path = Microcontroller/AVR/sublib_avr
 	url = git@github.com:PalouseRobosub/SUBLIBinal_AVR.git
+[submodule "Computer/BeerPong_GUI/serial"]
+	path = Computer/BeerPong_GUI/serial
+	url = git@github.com:ryan-summers/SUBLIBinal_Packetizer_Multistate.git
