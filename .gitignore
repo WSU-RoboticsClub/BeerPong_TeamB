@@ -1,7 +1,12 @@
+gerbers/
+*.zip
+*.bak
+*.kicad_pcb-bak
 *.pyc
 .*.swp
 *.exe
 *.o
+*.lib
 *.user
 Computer/BeerPong_GUI/build/*
 Microcontroller/AVR/build/*
