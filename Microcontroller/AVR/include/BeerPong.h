@@ -30,6 +30,9 @@ extern "C" {
 #define M2_READ_RPM 0x12
 #define M1_READ_GOAL 0x31
 #define M2_READ_GOAL 0x32
+#define M1_READ_CURRENT 0x0A
+#define M2_READ_CURRENT 0xAA
+
 
 #define PB_CLK 16000000
 

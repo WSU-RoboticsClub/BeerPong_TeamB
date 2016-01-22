@@ -7,6 +7,8 @@
 extern volatile long M1_RPM_status,
 	   				 M2_RPM_status;
 
+extern float M1_dutyCycle, M2_dutyCycle;
+
 long convert_to_int(uint8 *message);
 
 void establishUART()
@@ -42,45 +44,17 @@ void packetizer_callback(uint8 *message, uint8 size)
 	{
 		switch (message[0]) {
 			case M1_SET_RPM:
-				//Update the RPM Setting for M1
+				//Update the duty Setting for M1
 				if (size >= 5)
-					M1_RPM_goal = convert_to_int(&(message[1]));
+					M1_dutyCycle = convert_to_int(&(message[1]));
 				break;
 			case M2_SET_RPM:
-				//Update the RPM Setting for M2
+				//Update the duty Setting for M2
 				if (size >= 5)
-					M2_RPM_goal = convert_to_int(&(message[1]));
-				break;
-			case M1_READ_RPM:
-				//Transmit the current RPMs for M1
-				memcpy(&(packet[1]), (const void *) &M1_RPM_status, sizeof(M1_RPM_status));
-				packet[0] = message[0];
-				send_packet(PACKET_UART_CH_1, (uint8 *)packet, 1+sizeof(M1_RPM_status));
-				break;
-			case M2_READ_RPM:
-				//Transmit the current RPMs for M2
-				memcpy(&(packet[1]),(const void *) &M2_RPM_status, sizeof(M2_RPM_status));
-				packet[0] = message[0];
-				send_packet(PACKET_UART_CH_1, (uint8 *)packet, 1+sizeof(M1_RPM_status));
-				break;
-			case M1_READ_GOAL:
-				memcpy(&(packet[1]), (const void *)&M1_RPM_goal, sizeof(M1_RPM_goal));
-				packet[0] = message[0];
-				send_packet(PACKET_UART_CH_1, (uint8 *)packet, 1+sizeof(M1_RPM_status));
-				break;
-			case M2_READ_GOAL:
-				memcpy(&(packet[1]), (const void *)&M2_RPM_goal, sizeof(M2_RPM_goal));
-				packet[0] = message[0];
-				send_packet(PACKET_UART_CH_1, (uint8 *)packet, 1+sizeof(M1_RPM_status));
-				break;
-			default:
-				send_packet(PACKET_UART_CH_1, NULL, 0);
+					M2_dutyCycle = convert_to_int(&(message[1]));
 				break;
 		}
 	}
-	else
-		send_packet(PACKET_UART_CH_1, NULL, 0);
-
 }
 
 long convert_to_int(uint8 *message)

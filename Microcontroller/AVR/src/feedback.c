@@ -17,12 +17,12 @@ void feedback()
 	char packets[5];
 
 	ADC_Node node1;
-	node1.device_id = 0xA;
+	node1.device_id = M1_READ_CURRENT;
 	node1.channel = 0b1;
 	node1.callback = &processADC;
 	read_ADC(node1);
 
-	node1.device_id = 0xAA;
+	node1.device_id = M2_READ_CURRENT;
 	node1.channel = 0b10;
 	read_ADC(node1);
 
