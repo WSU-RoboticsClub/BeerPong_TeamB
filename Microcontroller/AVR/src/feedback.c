@@ -1,5 +1,9 @@
 #include "BeerPong.h"
 
+extern volatile long M1_current, M2_current;
+extern volatile float M1_dutyCycle, M2_dutyCycle;
+extern volatile long M1_RPM_status, M2_RPM_status;
+
 void configureFeedback()
 {
 	Timer_Config feedbackTimer = &feedback;
