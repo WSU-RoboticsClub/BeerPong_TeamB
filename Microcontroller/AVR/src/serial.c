@@ -1,13 +1,11 @@
 #include "BeerPong.h"
 
-extern uint8_t uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE];
+//Serial Variables	
+    uint8_t uart_rx_buffer[BUFFER_SIZE], uart_tx_buffer [BUFFER_SIZE]; //Serial buffers
 
 //Motor Variables
-extern volatile long M1_RPM_goal,
-	   M2_RPM_goal,
-	   M1_RPM_status,
-	   M2_RPM_status;
-volatile int timeout;
+extern volatile long M1_RPM_status,
+	   				 M2_RPM_status;
 
 long convert_to_int(uint8 *message);
 

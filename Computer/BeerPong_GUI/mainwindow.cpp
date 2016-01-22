@@ -37,26 +37,61 @@ void MainWindow::updateData(QString data)
     //-> First byte is the command byte that was sent
     string tmp;
     char arr[4];
+    int val;
+    char curr[2];
+    double current = 0;
+    int i;
     if (data.size() > 1)
     {
-        for (int i = 0; i < 4; i++)
-            arr[i] = data.at(i+1).toLatin1();
 
-        convertVal = convert(arr);
-
-        switch (data.at(0).toLatin1())
+        switch ((u_int8_t)data.at(0).toLatin1())
         {
         case MOTOR1_RPMS:
+            for (i = 0; i < 4; i++)
+                arr[i] = data.at(i+1).toLatin1();
+
+            convertVal = convert(arr);
             ui->disp_rpm_m1->setText(QString::number(convertVal));
             break;
         case MOTOR2_RPMS:
+            for (i = 0; i < 4; i++)
+                arr[i] = data.at(i+1).toLatin1();
+
+            convertVal = convert(arr);
             ui->disp_rpm_m2->setText(QString::number(convertVal));
             break;
         case MOTOR1_GOAL:
+            for (i = 0; i < 4; i++)
+                arr[i] = data.at(i+1).toLatin1();
+
+            convertVal = convert(arr);
             ui->disp_goal_m1->setText(QString::number(convertVal));
             break;
         case MOTOR2_GOAL:
+            for (i = 0; i < 4; i++)
+                arr[i] = data.at(i+1).toLatin1();
+
+            convertVal = convert(arr);
             ui->disp_goal_m2->setText(QString::number(convertVal));
+            break;
+        case M1_CURRENT:
+            //Get the current value.
+            curr[0] = data.at(1).toLatin1();
+            curr[1] = data.at(2).toLatin1();
+            memcpy(&val, curr, 2);
+            current = val/1024.0 * 5 * 2; //Val/1024 is the % of 5V, *5V gives actual voltage, 2 A/V
+            ui->text_currentM1->setText(QString::number(current));
+            break;
+        case M2_CURRENT:
+            //Get the current value.
+            curr[0] = data.at(1).toLatin1();
+            curr[1] = data.at(2).toLatin1();
+            memcpy(&val, curr, 2);
+            current = val/1024.0 * 5 * 2; //Val/1024 is the % of 5V, *5V gives actual voltage, 2 A/V
+            ui->text_currentM2->setText(QString::number(current));
+            break;
+        default:
+            cout << "Error. Unrecognized packet." << endl;
             break;
         }
     }
@@ -131,7 +166,7 @@ void MainWindow::on_button_set_targets_clicked()
 
 unsigned int convert(const char *buf)
 {
-    unsigned int response = 0, i = 0;
+    unsigned int response = 0;
 
     memcpy(&response, buf, 4);
     return response;

@@ -33,18 +33,6 @@ extern "C" {
 
 #define PB_CLK 16000000
 
-//PID Struct Definition
-typedef struct PID_CONTROLLER{
-	float dState;
-	float iState;
-	float iMin;
-	float iMax;
-
-	float pGain;
-	float iGain;
-	float dGain;
-} PID;
-
 
 /* Function Prototypes */
 //main
@@ -65,9 +53,11 @@ void establishUART(); //Create our serial interface with packetizer enabled
 void packetizer_callback(uint8 *message, uint8 size); //Callback for the packetizer receive
 void configureFeedback(); //Configure the feedback for the motors
 
-//PID
-float updatePID(PID *controller, float error, float position); //Update a PID controller state
-void updatePIDControllers();
+//ADC
+void configureADC();
+void processADC(ADC_Node node);
+
+
 #ifdef	__cplusplus
 }
 #endif

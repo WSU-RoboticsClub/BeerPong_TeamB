@@ -1,4 +1,6 @@
 #!/bin/bash
 
 # This script uploads the hex file within the build directory onto the arduino
-avrdude -c usbtiny -p m328p -B 1 -v -U flash:w:"../build/beerpong.hex":i 
+make
+
+avrdude -c usbtiny -p m328p -B 1 -v -U flash:w:"build/beerpong.hex":i 

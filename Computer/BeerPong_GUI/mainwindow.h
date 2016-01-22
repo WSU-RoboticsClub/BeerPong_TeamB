@@ -17,6 +17,8 @@
 #define MOTOR2_RPMS 0x12
 #define MOTOR1_GOAL 0x31
 #define MOTOR2_GOAL 0x32
+#define M1_CURRENT 0x0A
+#define M2_CURRENT 0xAA
 
 using namespace std;
 
