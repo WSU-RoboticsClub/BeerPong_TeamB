@@ -24,15 +24,16 @@ extern "C" {
 #define REFRESH_FREQUENCY 1 //Rate at which feedback status is updated
 
 //Serial Description Bytes
-#define M1_READ_DUTYCYCLE 0x01
-#define M2_READ_DUTYCYCLE 0x02
-#define M1_SET_DUTYCYCLE 0x11
-#define M2_SET_DUTYCYCLE 0x12
-#define M1_READ_RPM 0x11
-#define M2_READ_RPM 0x12
-#define M1_READ_CURRENT 0x0A
-#define M2_READ_CURRENT 0xAA
-
+#define M1_STATUS_DUTYCYCLE 0x01
+#define M2_STATUS_DUTYCYCLE 0x02
+#define M1_STATUS_CURRENT 0x03
+#define M2_STATUS_CURRENT 0x04
+#define M1_SET_DUTYCYCLE 0x05
+#define M2_SET_DUTYCYCLE 0x06
+#define M1_READ_RPM 0x07
+#define M2_READ_RPM 0x08
+#define M1_STATUS_RPM 0x09
+#define M2_STATUS_RPM 0x0A
 
 #define PB_CLK 16000000
 

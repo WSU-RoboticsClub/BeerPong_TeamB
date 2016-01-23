@@ -21,10 +21,10 @@ void processADC(ADC_Node node)
 {
 	switch (node.device_id)
 	{
-		case M1_READ_CURRENT:
+		case M1_STATUS_CURRENT:
 			M1_current = node.data;
 			break;
-		case M2_READ_CURRENT:
+		case M2_STATUS_CURRENT:
 			M2_current = node.data;
 			break;
 	}

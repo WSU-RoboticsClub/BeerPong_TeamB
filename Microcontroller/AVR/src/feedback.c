@@ -24,44 +24,44 @@ void feedback()
 	long tmp;
 
 	ADC_Node node1;
-	node1.device_id = M1_READ_CURRENT;
+	node1.device_id = M1_STATUS_CURRENT;
 	node1.channel = 0b1;
 	node1.callback = &processADC;
 	read_ADC(node1);
 
-	node1.device_id = M2_READ_CURRENT;
+	node1.device_id = M2_STATUS_CURRENT;
 	node1.channel = 0b10;
 	read_ADC(node1);
 
 	//Send our current RPMs up to the computer
-	packets[0] = M1_READ_RPM;
+	packets[0] = M1_STATUS_RPM;
 	tmp = M1_RPM_status;
 	memcpy(&(packets[1]), &tmp, sizeof(M1_RPM_status));
 	send_packet(PACKET_UART_CH_1, packets, sizeof(packets));
 
-	packets[0] = M2_READ_RPM;
+	packets[0] = M2_STATUS_RPM;
 	tmp = M2_RPM_status;
 	memcpy(&(packets[1]), &tmp, sizeof(M2_RPM_status));
 	send_packet(PACKET_UART_CH_1, packets, sizeof(packets));
 
 	//send our current current to the computer
-	packets[0] = M1_READ_CURRENT;
+	packets[0] = M1_STATUS_CURRENT;
 	tmp = M1_current;
 	memcpy(&(packets[1]), &tmp, sizeof(M1_current));
 	send_packet(PACKET_UART_CH_1, packets, 3);
 
-	packets[0] = M2_READ_CURRENT;
+	packets[0] = M2_STATUS_CURRENT;
 	tmp = M2_current;
 	memcpy(&(packets[1]), &tmp, sizeof(M2_current));
 	send_packet(PACKET_UART_CH_1, packets, 3);
 
 	//Send our current duty cycle to the computer
-	packets[0] = M1_READ_DUTYCYCLE;
+	packets[0] = M1_STATUS_DUTYCYCLE;
 	tmp = M1_dutyCycle;
 	memcpy(&(packets[1]), &tmp, sizeof(M1_dutyCycle));
 	send_packet(PACKET_UART_CH_1, packets, sizeof(packets));
 	
-	packets[0] = M2_READ_DUTYCYCLE;
+	packets[0] = M2_STATUS_DUTYCYCLE;
 	tmp = M2_dutyCycle;
 	memcpy(&(packets[1]), &tmp, sizeof(M1_dutyCycle));
 	send_packet(PACKET_UART_CH_1, packets, sizeof(packets));
