@@ -3,6 +3,8 @@
 uint8 work_buffer[256];
 uint8 results_buffer[256];
 
+extern volatile int M1_current, M2_current;
+
 void configureADC()
 {
 	ADC_Config adc = {0};
@@ -17,7 +19,6 @@ void configureADC()
 
 void processADC(ADC_Node node)
 {
-	char packet[3];
 	switch (node.device_id)
 	{
 		case M1_READ_CURRENT:

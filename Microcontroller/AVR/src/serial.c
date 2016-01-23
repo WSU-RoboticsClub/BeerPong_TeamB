@@ -38,17 +38,15 @@ void establishUART()
 void packetizer_callback(uint8 *message, uint8 size)
 {
 	
-	char packet[256];
-
 	if (size > 0)
 	{
 		switch (message[0]) {
-			case M1_SET_RPM:
+			case M1_SET_DUTYCYCLE:
 				//Update the duty Setting for M1
 				if (size >= 5)
 					M1_dutyCycle = convert_to_int(&(message[1]));
 				break;
-			case M2_SET_RPM:
+			case M2_SET_DUTYCYCLE:
 				//Update the duty Setting for M2
 				if (size >= 5)
 					M2_dutyCycle = convert_to_int(&(message[1]));
