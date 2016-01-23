@@ -25,6 +25,8 @@
 #define M1_STATUS_RPM       0x09
 #define M2_STATUS_RPM       0x0A
 
+#define PID_FPS 60 // This denotes how frequently the pid controller updates
+
 using namespace std;
 
 class PortReader;

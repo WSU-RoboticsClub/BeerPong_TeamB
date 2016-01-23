@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     usePID = false;
     updatePID = new QTimer(this);
     connect(updatePID, SIGNAL(timeout()), this, SLOT(updateControllers()));
-
+    updatePID->start(1000/PID_FPS);
     rpm_m1 = 0;
     rpm_m2 = 0;
 }
