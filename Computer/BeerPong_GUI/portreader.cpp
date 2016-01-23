@@ -59,15 +59,6 @@ void PortReader::run()
     while (running)
     {
         int length;
-        //Send our data query commands down to the device
-        char command = MOTOR1_RPMS;
-        port->writePacket(&command, 1);
-        command = MOTOR2_RPMS;
-        port->writePacket(&command, 1);
-        command = MOTOR1_GOAL;
-        port->writePacket(&command, 1);
-        command = MOTOR2_GOAL;
-        port->writePacket(&command, 1);
 
         //Continually attempt to read from the serial port until it's empty and emit the signal for the processed data
         char buffer[256];

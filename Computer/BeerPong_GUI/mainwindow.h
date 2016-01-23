@@ -6,6 +6,7 @@
 #include <iostream>
 #include <ctime>
 #include <QString>
+#include "pid_controller.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -13,12 +14,16 @@
 #include <dirent.h>
 #endif
 
-#define MOTOR1_RPMS 0x11
-#define MOTOR2_RPMS 0x12
-#define MOTOR1_GOAL 0x31
-#define MOTOR2_GOAL 0x32
-#define M1_CURRENT 0x0A
-#define M2_CURRENT 0xAA
+#define M1_STATUS_DUTYCYCLE 0x01
+#define M2_STATUS_DUTYCYCLE 0x02
+#define M1_STATUS_CURRENT   0x03
+#define M2_STATUS_CURRENT   0x04
+#define M1_SET_DUTYCYCLE    0x05
+#define M2_SET_DUTYCYCLE    0x06
+#define M1_READ_RPM         0x07
+#define M2_READ_RPM         0x08
+#define M1_STATUS_RPM       0x09
+#define M2_STATUS_RPM       0x0A
 
 using namespace std;
 
@@ -45,10 +50,17 @@ private slots:
     void updateData(QString data);
     void populatePorts();
     void on_button_exit_clicked();
+    void updateControllers();
 
     void on_button_openClose_clicked();
 
     void on_select_port_activated(const QString &arg1);
+
+    void on_radioButton_toggled(bool checked);
+
+    void on_radioButton_2_toggled(bool checked);
+
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -56,6 +68,10 @@ private:
     QPalette *disabled;
     QPalette *enabled;
     QTimer *updatePorts;
+    bool usePID;
+    PID_Controller *m1, *m2;
+    QTimer *updatePID;
+    int rpm_m1, rpm_m2;
 };
 
 

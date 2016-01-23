@@ -17,11 +17,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     serial/src/Serial.cpp \
     serial/src/Packetizer.cpp \
-    portreader.cpp
+    portreader.cpp \
+    pid_controller.cpp
 
 HEADERS  += mainwindow.h \
     serial/include/Serial.hpp \
     serial/include/Packetizer.hpp \
-    portreader.hpp
+    portreader.hpp \
+    pid_controller.h
 
 FORMS    += mainwindow.ui

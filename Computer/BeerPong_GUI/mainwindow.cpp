@@ -28,6 +28,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     populatePorts();
     updatePorts->start(3000); //Update every 3 seconds
+
+    this->m1 = new PID_Controller(.01);
+    this->m2 = new PID_Controller(.01);
+
+    usePID = false;
+    updatePID = new QTimer(this);
+    connect(updatePID, SIGNAL(timeout()), this, SLOT(updateControllers()));
+
+    rpm_m1 = 0;
+    rpm_m2 = 0;
 }
 
 void MainWindow::updateData(QString data)
@@ -46,35 +56,35 @@ void MainWindow::updateData(QString data)
 
         switch ((u_int8_t)data.at(0).toLatin1())
         {
-        case MOTOR1_RPMS:
+        case M1_STATUS_RPM:
             for (i = 0; i < 4; i++)
                 arr[i] = data.at(i+1).toLatin1();
 
             convertVal = convert(arr);
             ui->disp_rpm_m1->setText(QString::number(convertVal));
             break;
-        case MOTOR2_RPMS:
+        case M2_STATUS_RPM:
             for (i = 0; i < 4; i++)
                 arr[i] = data.at(i+1).toLatin1();
 
             convertVal = convert(arr);
             ui->disp_rpm_m2->setText(QString::number(convertVal));
             break;
-        case MOTOR1_GOAL:
+        case M1_STATUS_DUTYCYCLE:
             for (i = 0; i < 4; i++)
                 arr[i] = data.at(i+1).toLatin1();
 
             convertVal = convert(arr);
             ui->disp_goal_m1->setText(QString::number(convertVal));
             break;
-        case MOTOR2_GOAL:
+        case M2_STATUS_DUTYCYCLE:
             for (i = 0; i < 4; i++)
                 arr[i] = data.at(i+1).toLatin1();
 
             convertVal = convert(arr);
             ui->disp_goal_m2->setText(QString::number(convertVal));
             break;
-        case M1_CURRENT:
+        case M1_STATUS_CURRENT:
             //Get the current value.
             curr[0] = data.at(1).toLatin1();
             curr[1] = data.at(2).toLatin1();
@@ -82,7 +92,7 @@ void MainWindow::updateData(QString data)
             current = val/1024.0 * 5 * 2; //Val/1024 is the % of 5V, *5V gives actual voltage, 2 A/V
             ui->text_currentM1->setText(QString::number(current));
             break;
-        case M2_CURRENT:
+        case M2_STATUS_CURRENT:
             //Get the current value.
             curr[0] = data.at(1).toLatin1();
             curr[1] = data.at(2).toLatin1();
@@ -138,30 +148,35 @@ void MainWindow::populatePorts()
 
 MainWindow::~MainWindow()
 {
+    delete m1;
+    delete m2;
+    delete updatePID;
     if (reader != NULL) delete reader;
-    delete disabled;\
+    delete disabled;
+
     delete enabled;
     delete ui;
 }
 
 void MainWindow::on_button_set_targets_clicked()
 {
+    if (!usePID)
+    {
+        //Form our messages
+        char message[6] = {'\n'};
+        int rpm;
 
-    //Form our messages
-    char message[6] = {'\n'};
-    int rpm;
+        rpm = this->ui->spinBox_target_m1->text().toFloat();
+        message[0] = M1_SET_DUTYCYCLE;
+        memcpy(&(message[1]), &rpm, 4);
+        QString tmp = QString::fromLatin1(message, 5);
+        emit sendCommand(tmp);
 
-    rpm = this->ui->spinBox_target_m1->text().toInt();
-    message[0] = 0x01;
-    memcpy(&(message[1]), &rpm, 4);
-    QString tmp = QString::fromLatin1(message, 5);
-    emit sendCommand(tmp);
-
-    rpm = this->ui->spinBox_target_m2->text().toInt();
-    message[0] = 0x02;
-    memcpy(&(message[1]), &rpm, 4);
-    emit sendCommand(QString::fromLatin1(message, 5));
-
+        rpm = this->ui->spinBox_target_m2->text().toFloat();
+        message[0] = M2_SET_DUTYCYCLE;
+        memcpy(&(message[1]), &rpm, 4);
+        emit sendCommand(QString::fromLatin1(message, 5));
+    }
 }
 
 unsigned int convert(const char *buf)
@@ -223,4 +238,44 @@ void MainWindow::on_select_port_activated(const QString &arg1)
         ui->button_openClose->setPalette(*enabled);
         ui->button_openClose->setText("Open");
     }
+}
+
+void MainWindow::on_radioButton_toggled(bool checked)
+{
+    if (checked)
+        usePID = true;
+}
+
+
+void MainWindow::on_radioButton_2_toggled(bool checked)
+{
+    if (checked)
+        usePID = false;
+}
+
+void MainWindow::updateControllers()
+{
+    if (usePID)
+    {
+        float dutyCycle_m1 = ui->disp_rpm_m1->document()->toPlainText().toFloat();
+        float dutyCycle_m2 = ui->disp_rpm_m2->document()->toPlainText().toFloat();
+        int m1_rpm = ui->disp_rpm_m1->document()->toPlainText().toInt();
+        int m2_rpm = ui->disp_rpm_m2->document()->toPlainText().toInt();
+
+        dutyCycle_m1 += m1->update((m1_rpm - rpm_m1), m1_rpm);
+        dutyCycle_m2 += m2->update((m2_rpm - rpm_m2), m2_rpm);
+
+        QString commandOne = QChar::fromLatin1(M1_SET_DUTYCYCLE) + QString::number(dutyCycle_m1);
+        QString commandTwo = QChar::fromLatin1(M2_SET_DUTYCYCLE) + QString::number(dutyCycle_m2);
+
+
+        emit sendCommand(commandOne);
+        emit sendCommand(commandTwo);
+    }
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    rpm_m1 = ui->text_rpm_m1->text().toInt();
+    rpm_m2 = ui->text_rpm_m2->text().toInt();
 }
