@@ -10,3 +10,4 @@ gerbers/
 *.user
 Computer/BeerPong_GUI/build/*
 Microcontroller/AVR/build/*
+/Microcontroller/PIC/proj/BeerPong.X/nbproject/private/

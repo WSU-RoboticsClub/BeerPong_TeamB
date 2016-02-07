@@ -1,20 +1,20 @@
 #include "BeerPong.h"
 
 //Motor Variables
-volatile long M1_RPM_status = 0, 
+volatile uint32_t M1_RPM_status = 0, 
 		 M2_RPM_status = 0;			
 
-volatile float M1_dutyCycle,
+volatile uint32_t M1_dutyCycle,
 		 M2_dutyCycle;
 
-volatile int M1_current,
+volatile uint32_t M1_current,
 		 M2_current;
 
-volatile long timerOne_overflow_cnt_m1 = 0; //Overflow count since last RPM calculation 
-volatile long timerOne_overflow_cnt_m2 = 0; //Overflow count since last RPM calculation 
+volatile uint32_t timerOne_overflow_cnt_m1 = 0; //Overflow count since last RPM calculation 
+volatile uint32_t timerOne_overflow_cnt_m2 = 0; //Overflow count since last RPM calculation 
 
-volatile long lastRead_m1 = 0;//Internal
-volatile long lastRead_m2 = 0;//Internal
+volatile uint32_t lastRead_m1 = 0;//Internal
+volatile uint32_t lastRead_m2 = 0;//Internal
 
 //Variables
 
@@ -122,7 +122,7 @@ void interrupt_m2()
 	//Sysclock = 16MHz
 	//timer1 divider = 1
 	//timePerCount = 1/(16MHz) = 62.5 nanoseconds
-	long totalCounts = (TCNT1 - lastRead_m2) + 65535*timerOne_overflow_cnt_m2;
+	uint32_t totalCounts = (TCNT1 - lastRead_m2) + 65535*timerOne_overflow_cnt_m2;
 	double totalTime = totalCounts * ((1/(float)16000000)/60);
 	M2_RPM_status = ((double)1)/(totalTime*2); //Multiply total time by 2 (We have four magnets, so each interrupt is actually only 1/2 of a rotation)
 
@@ -141,7 +141,7 @@ void interrupt_m1()
 	//Sysclock = 16MHz
 	//timer1 divider = 1
 	//timePerCount = 1/(16MHz) = 62.5 nanoseconds
-	long totalCounts = (TCNT1 - lastRead_m1) + 65535*timerOne_overflow_cnt_m1;
+	uint32_t totalCounts = (TCNT1 - lastRead_m1) + 65535*timerOne_overflow_cnt_m1;
 	double totalTime = totalCounts * ((1/(double)16000000)/60);
 	M1_RPM_status = ((double)1)/(totalTime*4); //Multiply total time by 4 (We have four magnets, so each interrupt is actually only 1/4 of a rotation)
 

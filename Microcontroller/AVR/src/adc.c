@@ -8,7 +8,7 @@ extern volatile int M1_current, M2_current;
 void configureADC()
 {
 	ADC_Config adc = {0};
-	adc.channels = 0b11;
+	adc.channels = 1<<ADC_CH_0 | 1<<ADC_CH_1;
 	adc.work_buffer_ptr = work_buffer;
 	adc.work_buffer_size = sizeof(work_buffer);
 	adc.result_buffer_ptr = results_buffer;

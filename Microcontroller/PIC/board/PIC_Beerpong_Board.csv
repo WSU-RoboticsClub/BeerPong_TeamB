@@ -1,0 +1,17 @@
+"Id";"Designator";"Package";"Quantity";"Designation";"Supplier and ref";
+1;"C,C,C1,C2";"C_0805_HandSoldering";4;"C";;;
+2;"C6";"C_0805_HandSoldering";1;"4.7uF";;;
+3;"C7";"C_0805_HandSoldering";1;"10uF";;;
+4;"D1,D2";"LED_0805";2;"LED";;;
+5;"IC1";"SSOP-28_5.3x10.2mm_Pitch0.65mm";1;"PIC32MX2xx/1xx";;;
+6;"IC3";"SOT-23-5";1;"LM3671";;;
+7;"L1";"C_0805_HandSoldering";1;"2.2uH";;;
+8;"PROG";"Pin_Header_Staggered_1x06";1;"CONN_01X06";;;
+9;"P2";"Pin_Header_Straight_1x04";1;"CONN_01X04";;;
+10;"P3";"Pin_Header_Angled_1x10";1;"CONN_01X10";;;
+11;"P4,P5,P6";"Pin_Header_Straight_1x03";3;"CONN_01X03";;;
+12;"R1,R2,R6,R7,R8,R9,R10";"R_0805";7;"R";;;
+13;"R3";"R_0805_HandSoldering";1;"10k";;;
+14;"R4";"R_0805_HandSoldering";1;"470";;;
+15;"R5";"R_0805_HandSoldering";1;"R";;;
+16;"SW1";"Switch";1;"SW_PUSH";;;

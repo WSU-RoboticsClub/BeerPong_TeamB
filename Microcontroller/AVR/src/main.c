@@ -11,10 +11,11 @@ int main(void) {
 
 	configureMotors(); //Initialize the motors to run the flywheels
     establishUART(); //Initialize UART
-	configureFeedback();
+	configureFeedback_Timer();
 
 	configureADC();    
-    enable_Interrupts(); //Global interrupt enable. Do this last!
+
+	enable_Interrupts(); //Global interrupt enable. Do this last!
     
     
     while (1) {

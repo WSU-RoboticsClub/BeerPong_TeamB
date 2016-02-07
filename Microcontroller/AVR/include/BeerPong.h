@@ -19,9 +19,7 @@ extern "C" {
 #include "sublibinal.h"
 #include <string.h>
 /* Global Definitions */
-#define BUFFER_SIZE 512 // This defines the size of the UART buffers
-#define SYNC_COUNT 10 // This defines how many messages are sent to acquire sync
-#define REFRESH_FREQUENCY 1 //Rate at which feedback status is updated
+#define BUFFER_SIZE 256 // This defines the size of the UART buffers !!DO NTO CHANGE THIS FFS!!
 
 //Serial Description Bytes
 #define M1_STATUS_DUTYCYCLE 0x01
@@ -39,8 +37,6 @@ extern "C" {
 
 
 /* Function Prototypes */
-//main
-void updateStatus();
 
 //Motors
 void configureMotors(); //Configuration and instantiation of the flywheel motors

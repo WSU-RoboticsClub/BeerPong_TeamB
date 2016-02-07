@@ -4,7 +4,7 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
             <name>BeerPong</name>
-            <creation-uuid>7cd8e804-847f-47ee-aa37-37adbb7229be</creation-uuid>
+            <creation-uuid>044ffb15-c2de-4112-bb87-14a59c0082f0</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions>c</c-extensions>
             <cpp-extensions/>
@@ -12,7 +12,7 @@
             <asminc-extensions/>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects>
-                <make-dep-project>../../sublib/proj/SUBLIBinal.X</make-dep-project>
+                <make-dep-project>../sublib/proj/SUBLIBinal.X</make-dep-project>
             </make-dep-projects>
         </data>
     </configuration>
